@@ -212,7 +212,7 @@ def load_images_from_config(config_path: Path, cluster_name: str, platform: str)
         return 1
 
     try:
-        with open(config_path, "r") as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
     except Exception as e:
         console.print(f"[red]Error: Failed to parse YAML configuration: {e}[/red]")

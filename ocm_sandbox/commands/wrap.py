@@ -251,7 +251,7 @@ def generate_mwrs_files(
                 "manifestWorkTemplate": {"manifestConfigs": manifest_configs, "workload": {"manifests": workload}},
             },
         }
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             yaml.dump(mwrs_content, f, default_flow_style=False)
         output_files.append(filename)
 
@@ -288,7 +288,7 @@ def wrap_command(
 
     console.print(f"[blue]Reading Helm templates from:[/blue] {input_file}")
 
-    with open(input_file, "r") as f:
+    with open(input_file, "r", encoding="utf-8") as f:
         helm_templates = [doc for doc in yaml.safe_load_all(f) if doc is not None]
 
     console.print(f"[blue]Found {len(helm_templates)} manifests[/blue]")

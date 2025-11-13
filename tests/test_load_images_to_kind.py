@@ -72,7 +72,7 @@ class TestLoadImagesFromConfig:
                 mock_check.return_value = True
                 mock_load.return_value = True
 
-                result = load_images_from_config(Path(config_file), 'default-cluster', 'linux/amd64')
+                load_images_from_config(Path(config_file), 'default-cluster', 'linux/amd64')
 
                 # Should check both clusters
                 assert mock_check.call_count == 2

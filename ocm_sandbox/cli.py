@@ -69,7 +69,6 @@ def main(
     For more information:
         https://open-cluster-management.io/
     """
-    pass
 
 
 # Register commands

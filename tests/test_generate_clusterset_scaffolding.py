@@ -1,8 +1,6 @@
 """
 Unit tests for scaffold command (generate-clusterset-scaffolding logic).
 """
-import tempfile
-import yaml
 import pytest
 
 from ocm_sandbox.commands.scaffold import generate_scaffolding_manifests

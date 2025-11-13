@@ -7,7 +7,6 @@ Creates the necessary OCM resources to get started:
 - ManifestWorkReplicaSet with namespace manifest
 """
 
-from pathlib import Path
 from typing import List, Dict, Any
 import yaml
 import typer
@@ -40,7 +39,9 @@ def generate_scaffolding_manifests(
             "spec": {
                 "placementRefs": [{"name": placement}],
                 "manifestWorkTemplate": {
-                    "workload": {"manifests": [{"apiVersion": "v1", "kind": "Namespace", "metadata": {"name": namespace}}]}
+                    "workload": {
+                        "manifests": [{"apiVersion": "v1", "kind": "Namespace", "metadata": {"name": namespace}}]
+                    }
                 },
             },
         },
@@ -53,7 +54,7 @@ def scaffold_command(
     namespace: str = typer.Option("default", "--namespace", "-N", help="Namespace for the resources"),
     clusterset: str = typer.Option("default", "--clusterset", "-c", help="ClusterSet name"),
     placement: str = typer.Option("clusterset-placement", "--placement", "-p", help="Placement name"),
-    output: Path = typer.Option("scaffolding.yaml", "--output", "-o", help="Output file name"),
+    output: str = typer.Option("scaffolding.yaml", "--output", "-o", help="Output file name"),
 ) -> None:
     """
     Generate ClusterSet scaffolding YAML with namespace ManifestWorkReplicaSet.
@@ -83,12 +84,12 @@ def scaffold_command(
 
     manifests = generate_scaffolding_manifests(name, namespace, clusterset, placement)
 
-    with open(output, "w") as f:
+    with open(output, "w", encoding="utf-8") as f:
         for manifest in manifests:
             yaml.dump(manifest, f, default_flow_style=False)
             f.write("---\n")
 
     console.print(f"\n[green]Success! Generated {output}[/green]")
-    console.print(f"\n[yellow]Next steps:[/yellow]")
+    console.print("\n[yellow]Next steps:[/yellow]")
     console.print(f"  kubectl apply -f {output} --context kind-ocm-hub")
-    console.print(f"  kubectl get managedclusters --context kind-ocm-hub")
+    console.print("  kubectl get managedclusters --context kind-ocm-hub")

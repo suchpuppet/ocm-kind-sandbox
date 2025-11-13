@@ -1,7 +1,6 @@
 """
 Unit tests for wrap command (helm_to_mwrs logic).
 """
-import tempfile
 import yaml
 import pytest
 

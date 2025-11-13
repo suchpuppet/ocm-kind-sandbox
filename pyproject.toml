@@ -20,7 +20,7 @@ packages = [{include = "ocm_sandbox"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-typer = "^0.9.0"
+typer = "^0.15.0"
 pyyaml = "^6.0"
 rich = "^13.7.0"  # For beautiful terminal output (used by typer)
 
