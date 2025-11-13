@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 from typing import List, Optional
+
 import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -230,9 +231,7 @@ def load_images_from_config(config_path: Path, cluster_name: str, platform: str)
     loaded_count = 0
     failed_count = 0
 
-    with Progress(
-        SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console
-    ) as progress:
+    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console) as progress:
         task = progress.add_task(f"Processing {len(images)} images...", total=len(images))
 
         for item in images:
@@ -276,9 +275,7 @@ def load_images_from_config(config_path: Path, cluster_name: str, platform: str)
 
 def load_images_command(
     images: List[str] = typer.Argument(None, help="Docker images to load (e.g., nginx:latest, my-app:v1.0)"),
-    cluster: str = typer.Option(
-        os.environ.get("KIND_CLUSTER", "ocm-hub"), "--cluster", "-c", help="Kind cluster name"
-    ),
+    cluster: str = typer.Option(os.environ.get("KIND_CLUSTER", "ocm-hub"), "--cluster", "-c", help="Kind cluster name"),
     platform: str = typer.Option(
         os.environ.get("DOCKER_PLATFORM", "linux/amd64"), "--platform", "-p", help="Target platform"
     ),

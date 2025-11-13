@@ -3,8 +3,8 @@ Unit tests for the OCM Sandbox CLI entry points.
 
 Tests the Typer CLI commands and argument parsing.
 """
-from typer.testing import CliRunner
 import pytest
+from typer.testing import CliRunner
 
 from ocm_sandbox.cli import app
 

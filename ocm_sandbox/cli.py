@@ -6,10 +6,11 @@ A command-line tool for bootstrapping and managing OCM environments in Kind clus
 
 import typer
 from rich.console import Console
-from ocm_sandbox import __version__, __description__
-from ocm_sandbox.commands.wrap import wrap_command
-from ocm_sandbox.commands.scaffold import scaffold_command
+
+from ocm_sandbox import __description__, __version__
 from ocm_sandbox.commands.load_images import load_images_command
+from ocm_sandbox.commands.scaffold import scaffold_command
+from ocm_sandbox.commands.wrap import wrap_command
 
 console = Console()
 

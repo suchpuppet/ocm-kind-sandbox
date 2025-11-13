@@ -7,17 +7,16 @@ Creates the necessary OCM resources to get started:
 - ManifestWorkReplicaSet with namespace manifest
 """
 
-from typing import List, Dict, Any
-import yaml
+from typing import Any, Dict, List
+
 import typer
+import yaml
 from rich.console import Console
 
 console = Console()
 
 
-def generate_scaffolding_manifests(
-    name: str, namespace: str, clusterset: str, placement: str
-) -> List[Dict[str, Any]]:
+def generate_scaffolding_manifests(name: str, namespace: str, clusterset: str, placement: str) -> List[Dict[str, Any]]:
     """Generate scaffolding manifests."""
     manifests = [
         {
