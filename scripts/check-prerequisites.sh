@@ -4,7 +4,7 @@
 # Verifies all required tools are installed and configured correctly
 #
 
-set -e
+set -o pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -40,11 +40,11 @@ check_command() {
         if [ "$required" = "required" ]; then
             echo -e "${RED}✗${NC} $name is NOT installed (REQUIRED)"
             echo "  Install: $install_cmd"
-            ((ERRORS++))
+            ERRORS=$((ERRORS + 1))
         else
             echo -e "${YELLOW}⚠${NC} $name is NOT installed (optional)"
             echo "  Install: $install_cmd"
-            ((WARNINGS++))
+            WARNINGS=$((WARNINGS + 1))
         fi
     fi
 }
@@ -61,12 +61,12 @@ check_docker() {
         else
             echo -e "${RED}✗${NC} Docker daemon is NOT running"
             echo "  Start Docker Desktop or Docker Engine"
-            ((ERRORS++))
+            ERRORS=$((ERRORS + 1))
         fi
     else
         echo -e "${RED}✗${NC} Docker is NOT installed (REQUIRED)"
         echo "  Install: https://docs.docker.com/get-docker/"
-        ((ERRORS++))
+        ERRORS=$((ERRORS + 1))
     fi
 }
 
@@ -88,19 +88,19 @@ check_docker_mac_net_connect() {
                     echo -e "${RED}✗${NC} docker-mac-net-connect service is NOT running"
                     echo "  Status: $status"
                     echo "  Start: sudo brew services start chipmk/tap/docker-mac-net-connect"
-                    ((ERRORS++))
+                    ERRORS=$((ERRORS + 1))
                 fi
             else
                 echo -e "${RED}✗${NC} docker-mac-net-connect is NOT installed (REQUIRED for macOS)"
                 echo "  This is CRITICAL for spoke-to-hub communication!"
                 echo "  Install: brew install chipmk/tap/docker-mac-net-connect"
                 echo "  Start:   sudo brew services start chipmk/tap/docker-mac-net-connect"
-                ((ERRORS++))
+                ERRORS=$((ERRORS + 1))
             fi
         else
             echo -e "${YELLOW}⚠${NC} Homebrew not found - cannot check docker-mac-net-connect"
             echo "  Install Homebrew: https://brew.sh"
-            ((WARNINGS++))
+            WARNINGS=$((WARNINGS + 1))
         fi
     fi
 }
@@ -118,12 +118,12 @@ check_python() {
         else
             echo -e "${YELLOW}⚠${NC} pyyaml is NOT installed (optional)"
             echo "  Install: pip install pyyaml"
-            ((WARNINGS++))
+            WARNINGS=$((WARNINGS + 1))
         fi
     else
         echo -e "${YELLOW}⚠${NC} Python 3 is NOT installed (optional, needed for utility scripts)"
         echo "  Install: https://www.python.org/downloads/"
-        ((WARNINGS++))
+        WARNINGS=$((WARNINGS + 1))
     fi
 }
 
