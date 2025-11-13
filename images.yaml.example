@@ -1,0 +1,32 @@
+# Example configuration file for loading Docker images into Kind clusters
+# Copy this to images.yaml and customize for your needs: cp images.yaml.example images.yaml
+#
+# Usage: ./scripts/load-images-to-kind.py --config images.yaml
+
+images:
+  # Simple format: just specify the image name
+  # These will be loaded to the default cluster (ocm-hub or $KIND_CLUSTER)
+  - nginx:alpine
+  - busybox:latest
+  - redis:7-alpine
+
+  # Advanced format: specify image and target cluster
+  - image: my-custom-app:latest
+    cluster: ocm-hub
+
+  - image: spoke-specific-app:v1.0
+    cluster: ocm-spoke1
+
+  # You can load the same image to multiple clusters by repeating entries
+  - image: shared-operator:latest
+    cluster: ocm-hub
+  - image: shared-operator:latest
+    cluster: ocm-spoke1
+  - image: shared-operator:latest
+    cluster: ocm-spoke2
+
+  # Private registry images work too
+  - ghcr.io/my-org/my-app:v2.0
+
+  # Local images built with docker build
+  - my-local-dev-image:latest

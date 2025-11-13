@@ -1,0 +1,190 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test Python Scripts
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.11', '3.12']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --with dev
+
+    - name: Run pytest with coverage
+      run: |
+        poetry run pytest tests/ -v --cov=ocm_sandbox --cov-report=xml --cov-report=term
+
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  lint:
+    name: Lint Python Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Install dependencies
+      run: poetry install --no-interaction --with dev
+
+    - name: Run pylint
+      run: |
+        poetry run pylint ocm_sandbox/ || true
+
+    - name: Run flake8
+      run: |
+        poetry run flake8 ocm_sandbox/ --max-line-length=120 --extend-ignore=E203,W503
+
+    - name: Check formatting with black
+      run: |
+        poetry run black --check ocm_sandbox/ tests/
+
+    - name: Check import sorting with isort
+      run: |
+        poetry run isort --check-only ocm_sandbox/ tests/
+
+  check-cli:
+    name: Verify CLI Installation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Install package
+      run: poetry install --no-interaction
+
+    - name: Verify CLI is available
+      run: |
+        poetry run ocm-sandbox --version
+        poetry run ocm-sandbox --help
+        poetry run ocm-sandbox wrap --help
+        poetry run ocm-sandbox scaffold --help
+        poetry run ocm-sandbox load-images --help
+
+  shellcheck:
+    name: Shellcheck Bash Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run shellcheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        scandir: './scripts'
+        severity: warning
+
+  prerequisites-check:
+    name: Test Prerequisites Script
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Make script executable
+      run: chmod +x scripts/check-prerequisites.sh
+
+    - name: Run prerequisites check (non-macOS)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        # On Ubuntu, we expect failures since we don't have Kind/clusteradm installed
+        # Just verify the script runs without crashing
+        ./scripts/check-prerequisites.sh || echo "Script ran (expected some failures in CI)"
+
+    - name: Run prerequisites check (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        # On macOS, verify it checks for docker-mac-net-connect
+        output=$(./scripts/check-prerequisites.sh 2>&1 || true)
+        if echo "$output" | grep -q "docker-mac-net-connect"; then
+          echo "✓ Script correctly checks for docker-mac-net-connect on macOS"
+        else
+          echo "❌ Script did not check for docker-mac-net-connect"
+          exit 1
+        fi
+
+  makefile-check:
+    name: Verify Makefile Targets
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Verify Makefile syntax
+      run: |
+        # Check Makefile can be parsed
+        make -n help
+
+    - name: List all Makefile targets
+      run: |
+        make help
