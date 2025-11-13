@@ -10,7 +10,6 @@ set -o pipefail
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Tracking
@@ -33,7 +32,8 @@ check_command() {
     local required=$4
 
     if command -v "$cmd" >/dev/null 2>&1; then
-        local version=$($cmd version 2>&1 | head -1 || echo "unknown")
+        local version
+        version=$($cmd version 2>&1 | head -1 || echo "unknown")
         echo -e "${GREEN}✓${NC} $name is installed"
         echo "  Version: $version"
     else
@@ -81,7 +81,8 @@ check_docker_mac_net_connect() {
                 echo -e "${GREEN}✓${NC} docker-mac-net-connect is installed"
 
                 # Check if service is running
-                local status=$(brew services list | grep docker-mac-net-connect | awk '{print $2}')
+                local status
+                status=$(brew services list | grep docker-mac-net-connect | awk '{print $2}')
                 if [ "$status" = "started" ]; then
                     echo -e "${GREEN}✓${NC} docker-mac-net-connect service is running"
                 else
@@ -108,7 +109,8 @@ check_docker_mac_net_connect() {
 # Function to check Python and optional packages
 check_python() {
     if command -v python3 >/dev/null 2>&1; then
-        local py_version=$(python3 --version 2>&1)
+        local py_version
+        py_version=$(python3 --version 2>&1)
         echo -e "${GREEN}✓${NC} Python 3 is installed"
         echo "  $py_version"
 
